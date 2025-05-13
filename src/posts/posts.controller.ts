@@ -1,0 +1,43 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { PostsService } from './posts.service';
+import { CreatePostDto } from './dto/create-post.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+@Controller('posts')
+export class PostsController {
+  constructor(private readonly postsService: PostsService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  create(@Body() createPostDto: CreatePostDto, @Request() req) {
+    return this.postsService.create(createPostDto, req.user.id);
+  }
+
+  @Get()
+  findAll() {
+    return this.postsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(+id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/me')
+  findUserPosts(@Request() req) {
+    return this.postsService.findUserPosts(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updatePostDto: CreatePostDto, @Request() req) {
+    return this.postsService.update(+id, updatePostDto, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string, @Request() req) {
+    return this.postsService.remove(+id, req.user.id);
+  }
+}
